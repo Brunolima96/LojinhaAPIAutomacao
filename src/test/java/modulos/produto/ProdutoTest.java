@@ -1,8 +1,9 @@
 package modulos.produto;
 
-import Pojo.ComponentePojo;
-import Pojo.ProdutoPojo;
+
 import Pojo.UsuarioPojo;
+import dataFactory.ProdutoDataFactory;
+import dataFactory.UsuarioDataFactory;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.apache.commons.lang3.builder.ToStringExclude;
@@ -10,8 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.matcher.RestAssuredMatchers.*;
@@ -24,17 +23,13 @@ public class ProdutoTest {
 
     @BeforeEach
     public void beforeach() {
-
-        UsuarioPojo usuarioLogin = new UsuarioPojo("admin","admin");
-
-
         //Configurando os dados da API Rest da Lojinha
         baseURI = "http://165.227.93.41";
         // port = 8080
         basePath = "/lojinha";
         //Obter o token do usuario admin
         this.token = given()
-                .contentType(ContentType.JSON).body(usuarioLogin)
+                .contentType(ContentType.JSON).body(UsuarioDataFactory.CriarUmNovoUsuarioAdministrador())
                 .when()
                 .post("/v2/login")
                 .then()
@@ -47,23 +42,14 @@ public class ProdutoTest {
     @DisplayName("Validar o limite 0 para o valor do produto")
     public void testValidarLimitesProibidoZerodovalordoProduto() {
 
-        ProdutoPojo produtoNovo = new ProdutoPojo("PlayStation6",0.00);
-        List Cores = new ArrayList<>();
-        Cores.add("Azul");
-        Cores.add("Preto");
-        produtoNovo.setProdutoCores(Cores);
 
-        List<ComponentePojo> componentes = new ArrayList<>();
-        ComponentePojo novoComponente = new ComponentePojo("Controle",2);
-        componentes.add(novoComponente);
-        produtoNovo.setProdutoComponente(componentes);
 
         // Tentar inserir um produto com valor 0.00 e validar que a mensagem de erro foi apresentada eo
         // Status code retornado foi 422
         given().
                 contentType(ContentType.JSON).
                 header("token", this.token).
-                body(produtoNovo).
+                body(ProdutoDataFactory.criarProdutoComumComOValorIgualA(0.00)).
                 post("/v2/produtos").
                 then().
                 assertThat()
@@ -80,24 +66,7 @@ public class ProdutoTest {
         given().
                 contentType(ContentType.JSON).
                 header("token", this.token).
-                body("{\n" +
-                        "  \"produtoNome\": \"Playstation 5\",\n" +
-                        "  \"produtoValor\": 7000.01,\n" +
-                        "  \"produtoCores\": [\n" +
-                        "    \"Preto\"\n" +
-                        "  ],\n" +
-                        "  \"produtoUrlMock\": \"string\",\n" +
-                        "  \"componentes\": [\n" +
-                        "    {\n" +
-                        "      \"componenteNome\": \"Controle\",\n" +
-                        "      \"componenteQuantidade\": 2\n" +
-                        "    },\n" +
-                        "     {\n" +
-                        "      \"componenteNome\": \"Jogo de futebol\",\n" +
-                        "      \"componenteQuantidade\": 2\n" +
-                        "    }\n" +
-                        "  ]\n" +
-                        "}").
+                body(ProdutoDataFactory.criarProdutoComumComOValorIgualA(7000.01)).
                 post("/v2/produtos").
                 then().
                 assertThat().
@@ -113,24 +82,7 @@ public class ProdutoTest {
         given().
                 contentType(ContentType.JSON).
                 header("token", this.token).
-                body("{\n" +
-                        "  \"produtoNome\": \"Playstation 5\",\n" +
-                        "  \"produtoValor\": 0.01,\n" +
-                        "  \"produtoCores\": [\n" +
-                        "    \"Preto\"\n" +
-                        "  ],\n" +
-                        "  \"produtoUrlMock\": \"string\",\n" +
-                        "  \"componentes\": [\n" +
-                        "    {\n" +
-                        "      \"componenteNome\": \"Controle\",\n" +
-                        "      \"componenteQuantidade\": 2\n" +
-                        "    },\n" +
-                        "     {\n" +
-                        "      \"componenteNome\": \"Jogo de futebol\",\n" +
-                        "      \"componenteQuantidade\": 2\n" +
-                        "    }\n" +
-                        "  ]\n" +
-                        "}").
+                body(ProdutoDataFactory.criarProdutoComumComOValorIgualA(0.01)).
                 post("/v2/produtos").
                 then().
                 assertThat().
@@ -147,24 +99,7 @@ public class ProdutoTest {
         given().
                 contentType(ContentType.JSON).
                 header("token", this.token).
-                body("{\n" +
-                        "  \"produtoNome\": \"Playstation 5\",\n" +
-                        "  \"produtoValor\": 7000.00,\n" +
-                        "  \"produtoCores\": [\n" +
-                        "    \"Preto\"\n" +
-                        "  ],\n" +
-                        "  \"produtoUrlMock\": \"string\",\n" +
-                        "  \"componentes\": [\n" +
-                        "    {\n" +
-                        "      \"componenteNome\": \"Controle\",\n" +
-                        "      \"componenteQuantidade\": 2\n" +
-                        "    },\n" +
-                        "     {\n" +
-                        "      \"componenteNome\": \"Jogo de futebol\",\n" +
-                        "      \"componenteQuantidade\": 2\n" +
-                        "    }\n" +
-                        "  ]\n" +
-                        "}").
+                body(ProdutoDataFactory.criarProdutoComumComOValorIgualA(7000.00)).
                 post("/v2/produtos").
                 then().
                 assertThat().
